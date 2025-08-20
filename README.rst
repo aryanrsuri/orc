@@ -1,0 +1,12 @@
+============================================
+Orc is a simple event and content tracker
+============================================
+
+Features:
+* content addressable storage of artifacts
+* one sqlite3 binary, managing all artifacts
+* checkins ~are kind of like~ commits
+* events ~are kind of like~ tasks/issues/bugs/reports/tweets
+
+----
+Made with <3 by @asuri
