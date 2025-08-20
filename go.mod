@@ -1,4 +1,4 @@
-module orc
+module main
 
 go 1.26
 
