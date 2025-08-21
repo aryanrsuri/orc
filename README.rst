@@ -1,20 +1,20 @@
 ============================================
-Orc is a simple revision and event tracker
+Orc is a simple revision and ticket tracker
 ============================================
 
 Features:
-* content addressable storage of artifacts
 * one sqlite3 binary, managing all artifacts
+* manifests to manage a revision
 * checkins ~are kind of like~ commits
-* events ~are kind of like~ tasks/issues/bugs/reports/tweets
+* refs ~are kind of like~ branches/tickets/tags/tasks/bugs/tweets
 
 
 Architecture
 --------------
 
-The content tracker relies on three major constructs:
+The content tracker relies on:
 
-Hashed artifacts
+(1) Hashed artifacts
 ********************
 
 1. A content artifact is a content addressed blob of some source code 
@@ -73,7 +73,7 @@ Reference
  1 1    U <user>
  1 1    Z <checksum>
 
-Orchestration (sqlite3)
+(2) Orchestration (sqlite3)
 **************************
 
 There are intentionally very few tables:
@@ -90,5 +90,5 @@ There are intentionally very few tables:
    artifact itself
 
 
-----
+-----
 Made with <3 by <arysuri at proton dot me>
