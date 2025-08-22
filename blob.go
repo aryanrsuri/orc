@@ -17,7 +17,7 @@ type blob struct {
 	data  []byte
 }
 
-func put_blob(db *sql.DB, data []byte) (string, error) {
+func hash(data []byte) (string , error) {
 	h := sha256.New()
 	_, err := h.Write(data)
 
@@ -25,6 +25,17 @@ func put_blob(db *sql.DB, data []byte) (string, error) {
 		return "", err
 	}
 	id := hex.EncodeToString(h.Sum(nil))
+
+	return id, nil
+}
+
+func put_blob(db *sql.DB, data []byte) (string, error) {
+
+	id, err := hash(data)
+
+	if err != nil {
+		return "", err
+	}
 
 	_, err = db.Exec("INSERT INTO blob (id, ctime, size, data) VALUES (?, ?, ?, ?);",
 		id, time.Now().Unix(), len(data), data)

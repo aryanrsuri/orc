@@ -9,6 +9,47 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+const ROOT string = ".orc"
+const DB string = ".orc/project.db"
+const INDEX string = ".orc/INDEX"
+
+func create_root(root string, index string) error {
+	err := os.Mkdir(root, os.ModePerm)
+	if err != nil {
+		return err
+	}
+	err = os.WriteFile(index, []byte{}, os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func ensure_root(root string, index string) (*sql.DB, error) {
+	if _, err := os.Stat(".orc"); err != nil{
+		if os.IsNotExist(err) {
+			log.Print("Orc project not found, creating one")
+			err = create_root(root, index)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, err
+		}
+	}
+	db, err := get_connection(DB)
+	if err != nil {
+		return nil, err
+	}
+	err = create_tbls(db)
+	if err != nil {
+		return nil, err
+	}
+
+	return db, err
+}
+
 func get_connection(file_path string) (*sql.DB, error) {
 	db, err := sql.Open("sqlite3", file_path)
 	if err != nil {
@@ -86,21 +127,19 @@ func create_tbls(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
-	log.Print("Storage tables created")
 	return nil
 }
 
 func main() {
-	db, err := get_connection("./orc.db")
+
+	// ORC INIT
+	db, err := ensure_root(ROOT, INDEX)
 	if err != nil {
-		log.Panicf("Couldn't get connection: %s", err)
+		log.Panicf("There was an issue creating the orc project.")
 	}
 
-	err = create_tbls(db)
-	if err != nil {
-		log.Panicf("Couldn't create tables: %s", err)
-	}
 
+	// TESTING PUT BLOB 
 	in := os.Args[1]
 	data := []byte(in)
 	id, err := put_blob(db, data)
@@ -108,10 +147,15 @@ func main() {
 		log.Panicf("Couldn't create blob: %s", err)
 	}
 
+	// TESTING GET BLOB 
 	b, err := get_blob(db, id)
 	if err != nil {
 		log.Panicf("Couldn't create blob: %s", err)
 	}
 
 	log.Printf("ID=%s\tCTIME=%s\tSIZE=%d\tDATA=%s", b.id, time.Unix(b.ctime, 0).UTC(), b.size, string(b.data))
+
+
+	// TESTING PARSE ARTIFACT
+	parse_object(b)
 }
