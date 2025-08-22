@@ -17,7 +17,7 @@ type blob struct {
 	data  []byte
 }
 
-func hash(data []byte) (string , error) {
+func hash(data []byte) (string, error) {
 	h := sha256.New()
 	_, err := h.Write(data)
 

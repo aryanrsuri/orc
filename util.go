@@ -7,7 +7,6 @@ import (
 	"time"
 )
 
-
 func uuid() string {
 	b := make([]byte, 16)
 	binary.BigEndian.PutUint64(b[:8], uint64(time.Now().Unix()))

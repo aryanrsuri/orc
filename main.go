@@ -2,9 +2,9 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
-	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -27,7 +27,7 @@ func create_root(root string, index string) error {
 }
 
 func ensure_root(root string, index string) (*sql.DB, error) {
-	if _, err := os.Stat(".orc"); err != nil{
+	if _, err := os.Stat(".orc"); err != nil {
 		if os.IsNotExist(err) {
 			log.Print("Orc project not found, creating one")
 			err = create_root(root, index)
@@ -135,28 +135,27 @@ func main() {
 		log.Panicf("There was an issue creating the orc project: %s", err)
 	}
 
-
-	// TESTING PUT BLOB 
-	in := os.Args[1]
-	data := []byte(in)
+	// TESTING PUT BLOB
+	data, err := read_to_bytes("./examples/ref")
+	if err != nil {
+		log.Panicf("Couldn't read file: %s", err)
+	}
 	id, err := put_blob(db, data)
 	if err != nil {
 		log.Panicf("Couldn't create blob: %s", err)
 	}
 
-	// TESTING GET BLOB 
+	// TESTING GET BLOB
 	b, err := get_blob(db, id)
 	if err != nil {
 		log.Panicf("Couldn't create blob: %s", err)
 	}
 
-	log.Printf("ID=%s\tCTIME=%s\tSIZE=%d\tDATA=%s", b.id, time.Unix(b.ctime, 0).UTC(), b.size, string(b.data))
-
-
 	// TESTING PARSE ARTIFACT
-	parse_artifact(b)
+	ref, err := parse_artifact(b)
 
-
-	uid := uuid()
-	log.Printf("Created a uid %s", uid)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(ref)
 }
