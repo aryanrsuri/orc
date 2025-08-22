@@ -110,18 +110,15 @@ func create_tbls(db *sql.DB) error {
 
 		CREATE TABLE IF NOT EXISTS ref_change (
 			ref_id		TEXT NOT NULL REFERENCES ref(id),
+			blob_id		TEXT NOT NULL REFERENCES blob(id),
 			ctime		INTEGER NOT NULL,
-			op		TEXT NOT NULL CHECK(op IN ('+','-')),
-			user		TEXT NOT NULL,
-			key		TEXT,
-			value		TEXT,
-			target		TEXT,
-			comment		TEXT
+			PRIMARY KEY (ref_id, blob_id)
 		);
+
 		CREATE INDEX IF NOT EXISTS idx_ref_id on ref(id);
 		CREATE INDEX IF NOT EXISTS idx_checkin_id on checkin(id);
 		CREATE INDEX IF NOT EXISTS idx_manifest_id on manifest(id);
-		CREATE INDEX IF NOT EXISTS idx_ref_change_ref_id on ref_change(ref_id);
+		CREATE INDEX IF NOT EXISTS idx_ref_change_blob_id on ref_change(blob_id);
 		`
 	_, err := db.Exec(statement)
 	if err != nil {
@@ -135,7 +132,7 @@ func main() {
 	// ORC INIT
 	db, err := ensure_root(ROOT, INDEX)
 	if err != nil {
-		log.Panicf("There was an issue creating the orc project.")
+		log.Panicf("There was an issue creating the orc project: %s", err)
 	}
 
 
@@ -157,5 +154,9 @@ func main() {
 
 
 	// TESTING PARSE ARTIFACT
-	parse_object(b)
+	parse_artifact(b)
+
+
+	uid := uuid()
+	log.Printf("Created a uid %s", uid)
 }

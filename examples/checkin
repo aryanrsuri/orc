@@ -1,0 +1,7 @@
+A C
+P <hash_of_previous_checkin>
+L <hash_of_the_manifest_artifact_above>
+D 1755903060
+U arysuri
+C Fix login button bug.
+Z a16f45731edb3cb23fcb63d91c8fec0af3ae0c90
