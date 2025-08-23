@@ -17,6 +17,15 @@ type blob struct {
 	data  []byte
 }
 
+type c_artifact struct {
+	A string
+	C string
+	D int64
+	F map[string]string
+	I string
+	fields []map[string][]string
+}
+
 func hash(data []byte) (string, error) {
 	h := sha256.New()
 	_, err := h.Write(data)
@@ -51,7 +60,7 @@ func put_blob(db *sql.DB, data []byte) (string, error) {
 	return id, nil
 }
 
-func get_blob(db *sql.DB, id string) (*blob, error) {
+func get_blob(db *sql.DB, id string) (blob, error) {
 	row, err := db.Query("SELECT * FROM blob WHERE id = ? LIMIT 1;", id)
 
 	if err != nil {
@@ -69,5 +78,46 @@ func get_blob(db *sql.DB, id string) (*blob, error) {
 		return nil, err
 	}
 
-	return &b, nil
+	return b, nil
 }
+
+func parse_blob(b blob) (c_artifact, error) {
+	var control c_artifact 
+	content := string(b.data)
+	lines := strings.Split(content, "\n")
+	for n, line := range(lines[:len(lines)-1]) {
+		c, field, err := parse_card(line)
+		if err != nil {
+			return nil, err
+		}
+		if n == 0 {
+			control.c_type = c
+		}
+
+		control.fields = append(control.fields, map[string][]string{c: field})
+	}
+
+	return control, nil
+}
+
+
+// FIXME: We need to have card specific logic? 
+// some way to pack cards into a struct, since,
+// for example, there may be more than K cards in a ref
+// so a single map won't suffice
+func parse_card(line string) (string, []string, error) {
+	parts := strings.Fields(line)
+	
+	if len(parts) == 0 {
+		return "", nil, fmt.Errorf("empty line")
+	}
+	if len(parts) == 1 {
+		return "", nil, fmt.Errorf("empty card")
+	}
+	card := parts[0]
+	fields := parts[1:]
+
+	return card, fields, nil
+}
+
+
