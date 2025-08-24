@@ -152,7 +152,7 @@ func main() {
 	}
 
 	// TESTING PARSE ARTIFACT
-	ref, err := parse_artifact(b)
+	ref, err := get_artifact(nil, b)
 
 	if err != nil {
 		panic(err)
