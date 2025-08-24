@@ -217,12 +217,13 @@ func get_artifact(db *sql.DB, b *blob) (*c_artifact, error) {
 func valid_artifact(control *c_artifact) bool {
 	result := true
 	switch control.A {
-	case 'D', 'M', 'C': panic("Not implemented")
-	case 'R': 
+	case 'D', 'M', 'C':
+		panic("Not implemented")
+	case 'R':
 		if len(control.F) > 0 || control.P != "" {
 			result = false
 		}
-	
+
 	}
 	return result
 }

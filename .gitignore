@@ -1,4 +1,6 @@
 *.db
 *.db-*
-main
+main.o
 .orc/*
+.DS_Store
+

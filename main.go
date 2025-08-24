@@ -129,44 +129,43 @@ func create_tbls(db *sql.DB) error {
 
 func main() {
 	/*
-	// ORC INIT
-	db, err := ensure_root(ROOT, INDEX)
-	if err != nil {
-		log.Panicf("There was an issue creating the orc project: %s", err)
-	}
+		// ORC INIT
+		db, err := ensure_root(ROOT, INDEX)
+		if err != nil {
+			log.Panicf("There was an issue creating the orc project: %s", err)
+		}
 
-	// TESTING PUT BLOB
-	data, err := read_to_bytes("./examples/ref")
-	if err != nil {
-		log.Panicf("Couldn't read file: %s", err)
-	}
-	id, err := put_blob(db, data)
-	if err != nil {
-		log.Panicf("Couldn't create blob: %s", err)
-	}
+		// TESTING PUT BLOB
+		data, err := read_to_bytes("./examples/ref")
+		if err != nil {
+			log.Panicf("Couldn't read file: %s", err)
+		}
+		id, err := put_blob(db, data)
+		if err != nil {
+			log.Panicf("Couldn't create blob: %s", err)
+		}
 
-	// TESTING GET BLOB
-	b, err := get_blob(db, id)
-	if err != nil {
-		log.Panicf("Couldn't create blob: %s", err)
-	}
+		// TESTING GET BLOB
+		b, err := get_blob(db, id)
+		if err != nil {
+			log.Panicf("Couldn't create blob: %s", err)
+		}
 
-	// TESTING PARSE ARTIFACT
-	ref, err := get_artifact(nil, b)
+		// TESTING PARSE ARTIFACT
+		ref, err := get_artifact(nil, b)
 
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("%#v\n", ref)
-	fmt.Println(valid_artifact(ref))
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("%#v\n", ref)
+		fmt.Println(valid_artifact(ref))
 	*/
-
 
 	db, err := ensure_root(ROOT, INDEX)
 	if err != nil {
 		log.Panic(err)
 	}
-	id ,err := put_manifest(db, ".", []string{".git", ".orc", ".gitignore", "main"})
+	id, err := put_manifest(db, ".", []string{".git", ".orc", ".gitignore", "main.o"})
 	if err != nil {
 		log.Panic(err)
 	}
