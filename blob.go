@@ -13,6 +13,8 @@ import (
 	"github.com/mattn/go-sqlite3"
 )
 
+const DATA_MINUS_C_CARD int = 68
+
 type blob struct {
 	id    string
 	ctime int64
@@ -26,7 +28,7 @@ type pair struct {
 }
 
 type c_artifact struct {
-	A string
+	A byte
 	C string
 	D int64
 	F map[string]string
@@ -137,7 +139,7 @@ func get_artifact(db *sql.DB, b *blob) (*c_artifact, error) {
 	control.F = make(map[string]string)
 	control.K = make(map[string]pair)
 	content := string(b.data)
-	checksum, err := hash(b.data[:len(b.data)-68])
+	checksum, err := hash(b.data[:len(b.data)-DATA_MINUS_C_CARD])
 	if err != nil {
 		return nil, err
 	}
@@ -152,7 +154,7 @@ func get_artifact(db *sql.DB, b *blob) (*c_artifact, error) {
 		default:
 			return nil, fmt.Errorf("impossible card type %s", string(c))
 		case 'A':
-			control.A = field[0]
+			control.A = field[0][0]
 		case 'C':
 			control.C = strings.Join(field, " ")
 		case 'D':
@@ -212,4 +214,21 @@ func get_artifact(db *sql.DB, b *blob) (*c_artifact, error) {
 	}
 
 	return &control, nil
+}
+
+func valid_artifact(control *c_artifact) bool {
+	result := true
+	switch control.A {
+	case 'D', 'M', 'C': panic("Not implemented")
+	case 'R': {
+		if len(control.F) > 0 {
+			result = false
+		}
+		fmt.Println(control.P)
+		if control.P != "" || control.T != "" {
+			result = false
+		}
+	}
+	}
+	return result
 }

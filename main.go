@@ -158,4 +158,5 @@ func main() {
 		panic(err)
 	}
 	fmt.Printf("%#v\n", ref)
+	fmt.Println(valid_artifact(ref))
 }
