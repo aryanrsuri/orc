@@ -144,7 +144,6 @@ func get_artifact(db *sql.DB, b *blob) (*c_artifact, error) {
 	lines := strings.Split(content, "\n")
 	for _, line := range lines[:len(lines)-1] {
 		c, field, err := get_card(line)
-		fmt.Printf("Parsed card, got HEAD: %s\tFIELD: %+v\n\n", string(c), field)
 		if err != nil {
 			return nil, err
 		}
@@ -155,7 +154,7 @@ func get_artifact(db *sql.DB, b *blob) (*c_artifact, error) {
 		case 'A':
 			control.A = field[0]
 		case 'C':
-			control.C = field[0]
+			control.C = strings.Join(field, " ")
 		case 'D':
 			{
 				ts, err := strconv.ParseInt(field[0], 10, 0)
@@ -207,6 +206,7 @@ func get_artifact(db *sql.DB, b *blob) (*c_artifact, error) {
 				if checksum != field[0] {
 					return nil, fmt.Errorf("Checksum does not match")
 				}
+				control.Z = field[0]
 			}
 		}
 	}

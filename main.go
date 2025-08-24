@@ -157,5 +157,5 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(ref)
+	fmt.Printf("%#v\n", ref)
 }
