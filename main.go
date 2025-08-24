@@ -128,8 +128,6 @@ func create_tbls(db *sql.DB) error {
 }
 
 func main() {
-	fmt.Println("bruh")
-
 	/*
 	// ORC INIT
 	db, err := ensure_root(ROOT, INDEX)
@@ -164,9 +162,13 @@ func main() {
 	*/
 
 
-	files , err := walk_dir(".", []string{".git", ".orc", ".gitignore"})
+	db, err := ensure_root(ROOT, INDEX)
 	if err != nil {
 		log.Panic(err)
 	}
-	fmt.Println(files)
+	id ,err := put_manifest(db, ".", []string{".git", ".orc", ".gitignore", "main"})
+	if err != nil {
+		log.Panic(err)
+	}
+	fmt.Println(id)
 }

@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -92,7 +91,6 @@ func put_blob(db *sql.DB, data []byte) (string, error) {
 		}
 		return "", err
 	}
-	log.Printf("Data inserted with id: %s", id)
 	return id, nil
 }
 
