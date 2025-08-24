@@ -85,9 +85,9 @@ func put_blob(db *sql.DB, data []byte) (string, error) {
 	_, err = db.Exec("INSERT INTO blob (id, ctime, size, data) VALUES (?, ?, ?, ?);",
 		id, time.Now().Unix(), len(data), data)
 
+	// FIXME: Should I first check, e.g. ``SELECT 1 ... id = id``, or keep this?...
 	if err != nil {
 		if err.(sqlite3.Error).ExtendedCode == sqlite3.ErrConstraintPrimaryKey {
-			log.Printf("Data already exists with id: %s", id)
 			return id, nil
 		}
 		return "", err
@@ -200,7 +200,7 @@ func get_artifact(db *sql.DB, b *blob) (*c_artifact, error) {
 				control.P = field[0]
 			}
 		case 'T':
-			control.P = field[0]
+			control.T = field[0]
 		case 'U':
 			control.U = field[0]
 		case 'Z':
@@ -220,15 +220,11 @@ func valid_artifact(control *c_artifact) bool {
 	result := true
 	switch control.A {
 	case 'D', 'M', 'C': panic("Not implemented")
-	case 'R': {
-		if len(control.F) > 0 {
+	case 'R': 
+		if len(control.F) > 0 || control.P != "" {
 			result = false
 		}
-		fmt.Println(control.P)
-		if control.P != "" || control.T != "" {
-			result = false
-		}
-	}
+	
 	}
 	return result
 }

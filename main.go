@@ -128,7 +128,9 @@ func create_tbls(db *sql.DB) error {
 }
 
 func main() {
+	fmt.Println("bruh")
 
+	/*
 	// ORC INIT
 	db, err := ensure_root(ROOT, INDEX)
 	if err != nil {
@@ -159,4 +161,12 @@ func main() {
 	}
 	fmt.Printf("%#v\n", ref)
 	fmt.Println(valid_artifact(ref))
+	*/
+
+
+	files , err := walk_dir(".", []string{".git", ".orc", ".gitignore"})
+	if err != nil {
+		log.Panic(err)
+	}
+	fmt.Println(files)
 }
