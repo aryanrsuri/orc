@@ -165,9 +165,11 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
-	id, err := put_manifest(db, ".", []string{".git", ".orc", ".gitignore", "main.o"})
+
+	id, err := put_manifest(db, ".", []string{".git", ".orc", ".gitignore", "main.o", ".DS_Store"})
 	if err != nil {
 		log.Panic(err)
 	}
+
 	fmt.Println(id)
 }

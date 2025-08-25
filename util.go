@@ -5,9 +5,18 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"io/fs"
+	"os/user"
 	"path/filepath"
 	"time"
 )
+
+func get_user() string {
+	U, err := user.Current()
+	if err != nil {
+		return "default"
+	}
+	return U.Username
+}
 
 func uuid() string {
 	b := make([]byte, 16)
