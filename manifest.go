@@ -3,13 +3,14 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"os"
 	"time"
 )
 
 // Walk the root directory and generate a new manifest artifact
 //
-// @param *DB 
-// @param string 
+// @param *DB
+// @param string
 // @param []string
 //
 // @return (string, error) - Id of the manifest
@@ -49,7 +50,8 @@ func put_manifest(db *sql.DB, root string, ignore []string) (string, error) {
 	}
 
 	insert_manifest := "INSERT INTO manifest (id, ctime, user) VALUES (?, ?, ?)"
-	insert_manifest_file := "INSERT INTO manifest_file (m_id, path, blob) VALUES (?, ?, ?)"
+	insert_manifest_file := `INSERT INTO manifest_file 
+	(m_id, path, blob, perm, type) VALUES (?, ?, ?, ?, ?)`
 
 	_, err = db.Exec(insert_manifest, id, time.Now().Unix(), get_user())
 	if err != nil {
@@ -57,7 +59,13 @@ func put_manifest(db *sql.DB, root string, ignore []string) (string, error) {
 	}
 
 	for f, b := range F {
-		_, err = db.Exec(insert_manifest_file, id, f, b)
+		info, err  := os.Stat(f)
+		if  err != nil {
+			return "", err
+		}
+		mode := info.Mode().Perm()
+		
+		_, err = db.Exec(insert_manifest_file, id, f, b, mode, mode&os.ModeSymlink)
 		if err != nil {
 			return "", nil
 		}

@@ -30,7 +30,7 @@ func create_root(root string, index string) error {
 func ensure_root(root string, index string) (*sql.DB, error) {
 	if _, err := os.Stat(".orc"); err != nil {
 		if os.IsNotExist(err) {
-			fmt.Print("Orc project not found, creating one...")
+			fmt.Print("Orc project not found, creating one...\n")
 			err = create_root(root, index)
 			if err != nil {
 				return nil, err
@@ -87,6 +87,7 @@ func create_tbls(db *sql.DB) error {
 			blob		TEXT NOT NULL REFERENCES blob(id),
 			old_path	TEXT,
 			perm		INTEGER,
+			type		INTEGER,
 			PRIMARY KEY (m_id, path)
 		);
 
