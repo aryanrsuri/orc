@@ -3,10 +3,18 @@ Orc is a simple revision and ticket tracker
 ============================================
 
 Features:
-* one sqlite3 binary, managing all artifacts
-* manifests to manage a revision
-* checkins ~are kind of like~ commits
+* one binary, and one sqlite3 file managing all artifacts
+* checkin & manifest workflow
 * refs ~are kind of like~ branches/tickets/tags/tasks/bugs/tweets
+
+Usage
+--------------
+
+..
+        ./orc help
+        ./orc init
+        ./orc status
+        ./orc checkin -m "<message>"
 
 
 Architecture

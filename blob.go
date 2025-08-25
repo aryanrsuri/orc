@@ -40,6 +40,22 @@ type c_artifact struct {
 	Z string
 }
 
+func index_blobs(db *sql.DB, files []string) (map[string]string, error) {
+	F := make(map[string]string, len(files))
+	for _, f := range files {
+		data, err := read_to_bytes(f)
+		if err != nil {
+			return nil, err
+		}
+		id, err := put_blob(db, data)
+		if err != nil {
+			return nil, err
+		}
+		F[f] = id
+	}
+	return F, nil
+}
+
 func is_valid_hash(db *sql.DB, data string) bool {
 	if len(data) != 64 {
 		return false

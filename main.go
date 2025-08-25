@@ -133,14 +133,14 @@ func create_tbls(db *sql.DB) error {
 }
 
 type config struct {
-	root string
+	root   string
 	ignore []string
 }
 
 func main() {
 	var c config
 	c.root = "."
-	c.ignore = []string{".git", ".orc", ".DS_Store", "orc"}
+	c.ignore = []string{".git", ".orc", ".DS_Store", "orc", "examples"}
 	if len(os.Args) < 2 {
 		fmt.Println("Expected some command")
 		os.Exit(1)
@@ -148,7 +148,7 @@ func main() {
 
 	switch os.Args[1] {
 	default:
-		fmt.Println("orc is a simple scm\n\nCommands\n------------\nhelp: this message\ninit: create a new .orc project\ncheckin: checkin source code\nlog: review your checkins")
+		fmt.Println("This command you entered is either gibberish, or yet to be implemented.")
 		os.Exit(1)
 	case "help":
 		fmt.Println("orc is a simple scm\n\nCommands\n------------\nhelp: this message\ninit: create a new .orc project\ncheckin: checkin source code\nlog: review your checkins")
@@ -158,7 +158,7 @@ func main() {
 		_ = cmd.Parse(os.Args[2:])
 		_, err := ensure_root(ROOT, INDEX)
 		if err != nil {
-			fmt.Printf("Sorry, can't do that mate: %s\n", err)
+			fmt.Println(err)
 			os.Exit(1)
 		}
 	case "checkin":
@@ -167,15 +167,56 @@ func main() {
 		_ = cmd.Parse(os.Args[2:])
 		db, err := get_connection(DB)
 		if err != nil {
-			fmt.Printf("No .orc project found, call ``init`` first.")
+			fmt.Printf("No .orc project found, call `orc init` first.")
 			os.Exit(1)
 		}
 		id, err := put_checkin(db, *message, c.root, c.ignore)
 		if err != nil {
-			fmt.Printf("Sorry, can't do that mate: %s\n", err)
+			fmt.Println(err)
 			os.Exit(1)
 		}
 		now := time.Now().UTC().String()
-		fmt.Printf("Checkin created at %s\nCheckin ID: %s", now, id)
+		fmt.Printf("Checkin `%s` created at %s\nCheckin ID: %s\n", *message, now, id)
+	case "status":
+		cmd := flag.NewFlagSet("status", flag.ExitOnError)
+		_ = cmd.Parse(os.Args[2:])
+		db, err := get_connection(DB)
+		if err != nil {
+			fmt.Printf("No .orc project found, call `orc init` first.")
+			os.Exit(1)
+		}
+		files, err := walk_dir(c.root, c.ignore)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		F, err := index_blobs(db, files)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		P, err := get_previous_manifest_id(db)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		if P != "" {
+			s, err := compare_manifest(db, F, P)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			fmt.Println(format_state(s))
+			os.Exit(0)
+
+		} else {
+			var s state
+			for file, _ := range F {
+				s.U = append(s.U, file)
+			}
+			fmt.Println(format_state(&s))
+			os.Exit(0)
+		}
+
 	}
 }

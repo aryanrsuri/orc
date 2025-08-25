@@ -39,11 +39,10 @@ func put_checkin(db *sql.DB, C string, root string, ignore []string) (string, er
 		P = id
 		is_primary = true
 	}
-	_, err = db.Exec(insert_checkin_parents, id, P, is_primary) 
+	_, err = db.Exec(insert_checkin_parents, id, P, is_primary)
 	if err != nil {
 		return "", err
 	}
-
 
 	err = os.WriteFile("./.orc/INDEX", []byte(id), os.ModePerm)
 	if err != nil {
@@ -65,15 +64,14 @@ func get_previous_checkin(db *sql.DB) (string, error) {
 	return id, nil
 }
 
-
 func write_checkin(C string, L string, P string) ([]byte, error) {
 	var checkin string
 	if len(P) > 1 {
-	checkin = fmt.Sprintf(
-		"A C\nC %s\nD %d\nL %s\nP %s\nU %s\n", C, time.Now().Unix(),L, P, get_user())
+		checkin = fmt.Sprintf(
+			"A C\nC %s\nD %d\nL %s\nP %s\nU %s\n", C, time.Now().Unix(), L, P, get_user())
 	} else {
-	checkin = fmt.Sprintf(
-		"A C\nC %s\nD %d\nL %s\nU %s\n", C, time.Now().Unix(),L, get_user())
+		checkin = fmt.Sprintf(
+			"A C\nC %s\nD %d\nL %s\nU %s\n", C, time.Now().Unix(), L, get_user())
 	}
 	Z, err := hash([]byte(checkin))
 	if err != nil {

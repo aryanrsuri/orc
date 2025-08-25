@@ -17,26 +17,28 @@ import (
 //
 // FIXME: SQL should operate on one commit thread here, rolling back on any error
 func put_manifest(db *sql.DB, root string, ignore []string) (string, error) {
-	F := make(map[string]string)
 	files, err := walk_dir(root, ignore)
 	if err != nil {
 		return "", err
 	}
-	for _, f := range files {
-		data, err := read_to_bytes(f)
-		if err != nil {
-			return "", err
-		}
-		id, err := put_blob(db, data)
-		if err != nil {
-			return "", err
-		}
-		F[f] = id
-	}
-
-	P, err := get_previous_manifest(db)
+	F, err := index_blobs(db, files)
 	if err != nil {
 		return "", err
+	}
+
+	P, err := get_previous_manifest_id(db)
+	if err != nil {
+		return "", err
+	}
+
+	if P != "" {
+		state, err := compare_manifest(db, F, P)
+		if err != nil {
+			return "", err
+		}
+		if state_clean(state) {
+			return "", fmt.Errorf("Nothing to checkin")
+		}
 	}
 
 	// FIXME: Should everything below, not just be in ``write_manifest``
@@ -59,12 +61,12 @@ func put_manifest(db *sql.DB, root string, ignore []string) (string, error) {
 	}
 
 	for f, b := range F {
-		info, err  := os.Stat(f)
-		if  err != nil {
+		info, err := os.Stat(f)
+		if err != nil {
 			return "", err
 		}
 		mode := info.Mode().Perm()
-		
+
 		_, err = db.Exec(insert_manifest_file, id, f, b, mode, mode&os.ModeSymlink)
 		if err != nil {
 			return "", nil
@@ -73,9 +75,35 @@ func put_manifest(db *sql.DB, root string, ignore []string) (string, error) {
 	return id, nil
 }
 
+// FIXME: Should it take the current ID instead of the file map?...
+func compare_manifest(db *sql.DB, F map[string]string, P string) (*state, error) {
+	var s state
+	seen := make(map[string]bool, len(F))
+	prev_manifest, err := get_artifact(db, P)
+	if err != nil {
+		return nil, err
+	}
 
+	for path, hash := range F {
+		seen[path] = true
+		prev_hash, exists := prev_manifest.F[path]
+		if !exists {
+			s.U = append(s.U, path)
+		} else if prev_hash != hash {
+			s.M = append(s.M, path)
+		}
+	}
 
-func get_previous_manifest(db *sql.DB) (string, error) {
+	for path := range prev_manifest.F {
+		if !seen[path] {
+			s.D = append(s.D, path)
+		}
+	}
+
+	return &s, nil
+}
+
+func get_previous_manifest_id(db *sql.DB) (string, error) {
 	query := "SELECT MAX(id) as 'id' from manifest;"
 	var id string
 	row, err := db.Query(query)
