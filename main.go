@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -128,57 +129,23 @@ func create_tbls(db *sql.DB) error {
 }
 
 func main() {
-	/*
-		// ORC INIT
-		db, err := ensure_root(ROOT, INDEX)
-		if err != nil {
-			log.Panicf("There was an issue creating the orc project: %s", err)
-		}
-
-		// TESTING PUT BLOB
-		data, err := read_to_bytes("./examples/ref")
-		if err != nil {
-			log.Panicf("Couldn't read file: %s", err)
-		}
-		id, err := put_blob(db, data)
-		if err != nil {
-			log.Panicf("Couldn't create blob: %s", err)
-		}
-
-		// TESTING GET BLOB
-		b, err := get_blob(db, id)
-		if err != nil {
-			log.Panicf("Couldn't create blob: %s", err)
-		}
-
-		// TESTING PARSE ARTIFACT
-		ref, err := get_artifact(nil, b)
-
-		if err != nil {
-			panic(err)
-		}
-		fmt.Printf("%#v\n", ref)
-		fmt.Println(valid_artifact(ref))
-	*/
-
 	db, err := ensure_root(ROOT, INDEX)
 	if err != nil {
 		log.Panic(err)
 	}
 
-	id, err := put_manifest(db, ".", []string{".git", ".orc", ".gitignore", "main.o", ".DS_Store"})
+	now := time.Now().UTC().String()
+	id , err := put_checkin(db, fmt.Sprintf("Checkin I made on %s", now), ".", []string{".git", ".orc", "main.o",".DS_Store"})
 	if err != nil {
 		log.Panic(err)
 	}
 
-	fmt.Println(id)
-
-	m, err := get_manifest(db, id)
-
+	a, err := get_artifact(db, id)
 	if err != nil {
 		log.Panic(err)
 	}
 
-	fmt.Printf("\n%#v\n", *m)
 
+	log.Print("Checkin")
+	log.Printf("%#v\n", a)
 }

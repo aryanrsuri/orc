@@ -131,9 +131,12 @@ func get_card(line string) (byte, []string, error) {
 	return head, field, nil
 }
 
-func get_artifact(db *sql.DB, b *blob) (*c_artifact, error) {
+func get_artifact(db *sql.DB, id string) (*c_artifact, error) {
+	b, err := get_blob(db, id)
+	if err != nil {
+		return nil, err
+	}
 	var control c_artifact
-
 	control.F = make(map[string]string)
 	control.K = make(map[string]pair)
 	content := string(b.data)

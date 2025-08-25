@@ -6,6 +6,14 @@ import (
 	"time"
 )
 
+// Walk the root directory and generate a new manifest artifact
+//
+// @param *DB 
+// @param string 
+// @param []string
+//
+// @return (string, error) - Id of the manifest
+//
 // FIXME: SQL should operate on one commit thread here, rolling back on any error
 func put_manifest(db *sql.DB, root string, ignore []string) (string, error) {
 	F := make(map[string]string)
@@ -57,23 +65,7 @@ func put_manifest(db *sql.DB, root string, ignore []string) (string, error) {
 	return id, nil
 }
 
-// TODO: “get_manifest“
-// Is this (b) best implementation?
-// a) return the manifest and manifest file rows
-// b) get the bytes from ``blob`` and call “get_artifact“ to parse to one
-func get_manifest(db *sql.DB, id string) (*c_artifact, error) {
-	blob, err := get_blob(db, id)
-	if err != nil {
-		return nil, err
-	}
-	manifest, err := get_artifact(db, blob)
 
-	if err != nil {
-		return nil, err
-	}
-
-	return manifest, nil
-}
 
 func get_previous_manifest(db *sql.DB) (string, error) {
 	query := "SELECT MAX(id) as 'id' from manifest;"

@@ -5,10 +5,20 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"io/fs"
+	"os"
 	"os/user"
 	"path/filepath"
 	"time"
 )
+
+func read_to_bytes(path string) ([]byte, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, nil
+	}
+
+	return data, nil
+}
 
 func get_user() string {
 	U, err := user.Current()

@@ -3,4 +3,5 @@
 main.o
 .orc/*
 .DS_Store
+Notes.rst
 
