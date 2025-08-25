@@ -1,6 +1,7 @@
 *.db
 *.db-*
 main.o
+orc
 .orc/*
 .DS_Store
 Notes.rst
