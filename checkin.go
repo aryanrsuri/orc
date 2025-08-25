@@ -3,9 +3,11 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"os"
 	"time"
 )
 
+// FIXME: One SQL thread, rollback on any errors
 func put_checkin(db *sql.DB, C string, root string, ignore []string) (string, error) {
 	L, err := put_manifest(db, root, ignore)
 	if err != nil {
@@ -42,6 +44,11 @@ func put_checkin(db *sql.DB, C string, root string, ignore []string) (string, er
 		return "", err
 	}
 
+
+	err = os.WriteFile("./.orc/INDEX", []byte(id), os.ModePerm)
+	if err != nil {
+		return "", err
+	}
 
 	return id, nil
 }
