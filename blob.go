@@ -12,7 +12,7 @@ import (
 	"github.com/mattn/go-sqlite3"
 )
 
-const DATA_MINUS_C_CARD int = 68
+const DATA_MINUS_C_CARD int = 66
 
 type blob struct {
 	id    string
@@ -142,7 +142,7 @@ func get_artifact(db *sql.DB, b *blob) (*c_artifact, error) {
 		return nil, err
 	}
 	lines := strings.Split(content, "\n")
-	for _, line := range lines[:len(lines)-1] {
+	for _, line := range lines {
 		c, field, err := get_card(line)
 		if err != nil {
 			return nil, err

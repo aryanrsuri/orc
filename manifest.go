@@ -24,13 +24,12 @@ func put_manifest(db *sql.DB, root string, ignore []string) (string, error) {
 		}
 		F[f] = id
 	}
-	// Get previous manifest id
+
 	P, err := get_previous_manifest(db)
 	if err != nil {
 		return "", err
 	}
 
-	// TODO: Create manifest entry, and insert files into manifest_file given the manifest id
 	// FIXME: Should everything below, not just be in ``write_manifest``
 	manifest, err := write_manifest(F, P)
 	if err != nil {
@@ -58,12 +57,29 @@ func put_manifest(db *sql.DB, root string, ignore []string) (string, error) {
 	return id, nil
 }
 
+// TODO: “get_manifest“
+// Is this (b) best implementation?
+// a) return the manifest and manifest file rows
+// b) get the bytes from ``blob`` and call “get_artifact“ to parse to one
+func get_manifest(db *sql.DB, id string) (*c_artifact, error) {
+	blob, err := get_blob(db, id)
+	if err != nil {
+		return nil, err
+	}
+	manifest, err := get_artifact(db, blob)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return manifest, nil
+}
+
 func get_previous_manifest(db *sql.DB) (string, error) {
 	query := "SELECT MAX(id) as 'id' from manifest;"
 	var id string
 	row, err := db.Query(query)
 	if err != nil {
-		fmt.Println(err)
 		return "", nil
 	}
 	row.Next()
@@ -72,7 +88,6 @@ func get_previous_manifest(db *sql.DB) (string, error) {
 }
 
 func write_manifest(F map[string]string, P string) ([]byte, error) {
-
 	manifest := fmt.Sprintf(
 		"A M\nD %d\n", time.Now().Unix())
 	for f, b := range F {
@@ -89,5 +104,6 @@ func write_manifest(F map[string]string, P string) ([]byte, error) {
 	}
 	manifest = manifest + fmt.Sprintf(
 		"Z %s", Z)
+
 	return []byte(manifest), nil
 }

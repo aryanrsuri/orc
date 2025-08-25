@@ -172,4 +172,13 @@ func main() {
 	}
 
 	fmt.Println(id)
+
+	m, err := get_manifest(db, id)
+
+	if err != nil {
+		log.Panic(err)
+	}
+
+	fmt.Printf("\n%#v\n", *m)
+
 }
