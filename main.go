@@ -2,8 +2,8 @@ package main
 
 import (
 	"database/sql"
+	"flag"
 	"fmt"
-	"log"
 	"os"
 	"time"
 
@@ -30,7 +30,7 @@ func create_root(root string, index string) error {
 func ensure_root(root string, index string) (*sql.DB, error) {
 	if _, err := os.Stat(".orc"); err != nil {
 		if os.IsNotExist(err) {
-			log.Print("Orc project not found, creating one")
+			fmt.Print("Orc project not found, creating one...")
 			err = create_root(root, index)
 			if err != nil {
 				return nil, err
@@ -54,6 +54,9 @@ func ensure_root(root string, index string) (*sql.DB, error) {
 func get_connection(file_path string) (*sql.DB, error) {
 	db, err := sql.Open("sqlite3", file_path)
 	if err != nil {
+		return nil, err
+	}
+	if err := db.Ping(); err != nil {
 		return nil, err
 	}
 	return db, nil
@@ -128,24 +131,50 @@ func create_tbls(db *sql.DB) error {
 	return nil
 }
 
+type config struct {
+	root string
+	ignore []string
+}
+
 func main() {
-	db, err := ensure_root(ROOT, INDEX)
-	if err != nil {
-		log.Panic(err)
+	var c config
+	c.root = "."
+	c.ignore = []string{".git", ".orc", ".DS_Store", "main.o"}
+	if len(os.Args) < 2 {
+		fmt.Println("Expected some command")
+		os.Exit(1)
 	}
 
-	now := time.Now().UTC().String()
-	id , err := put_checkin(db, fmt.Sprintf("Checkin I made on %s", now), ".", []string{".git", ".orc", "main.o",".DS_Store"})
-	if err != nil {
-		log.Panic(err)
+	switch os.Args[1] {
+	default:
+		fmt.Println("orc is a simple scm\n\nCommands\n------------\nhelp: this message\ninit: create a new .orc project\ncheckin: checkin source code\nlog: review your checkins")
+		os.Exit(1)
+	case "help":
+		fmt.Println("orc is a simple scm\n\nCommands\n------------\nhelp: this message\ninit: create a new .orc project\ncheckin: checkin source code\nlog: review your checkins")
+		os.Exit(1)
+	case "init":
+		cmd := flag.NewFlagSet("init", flag.ExitOnError)
+		_ = cmd.Parse(os.Args[2:])
+		_, err := ensure_root(ROOT, INDEX)
+		if err != nil {
+			fmt.Printf("Sorry, can't do that mate: %s\n", err)
+			os.Exit(1)
+		}
+	case "checkin":
+		cmd := flag.NewFlagSet("checkin", flag.ExitOnError)
+		message := cmd.String("m", "", "commit message")
+		_ = cmd.Parse(os.Args[2:])
+		db, err := get_connection(DB)
+		if err != nil {
+			fmt.Printf("No .orc project found, call ``init`` first.")
+			os.Exit(1)
+		}
+		id, err := put_checkin(db, *message, c.root, c.ignore)
+		if err != nil {
+			fmt.Printf("LALALA Sorry, can't do that mate: %s\n", err)
+			os.Exit(1)
+		}
+		now := time.Now().UTC().String()
+		fmt.Printf("Checkin created at %s\nCheckin ID: %s", now, id)
 	}
-
-	a, err := get_artifact(db, id)
-	if err != nil {
-		log.Panic(err)
-	}
-
-
-	log.Print("Checkin")
-	log.Printf("%#v\n", a)
 }
