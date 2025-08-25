@@ -139,7 +139,7 @@ type config struct {
 func main() {
 	var c config
 	c.root = "."
-	c.ignore = []string{".git", ".orc", ".DS_Store", "main.o"}
+	c.ignore = []string{".git", ".orc", ".DS_Store", "orc"}
 	if len(os.Args) < 2 {
 		fmt.Println("Expected some command")
 		os.Exit(1)
@@ -171,7 +171,7 @@ func main() {
 		}
 		id, err := put_checkin(db, *message, c.root, c.ignore)
 		if err != nil {
-			fmt.Printf("LALALA Sorry, can't do that mate: %s\n", err)
+			fmt.Printf("Sorry, can't do that mate: %s\n", err)
 			os.Exit(1)
 		}
 		now := time.Now().UTC().String()
