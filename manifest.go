@@ -104,7 +104,7 @@ func compare_manifest(db *sql.DB, F map[string]string, P string) (*state, error)
 }
 
 func get_previous_manifest_id(db *sql.DB) (string, error) {
-	query := "SELECT MAX(id) as 'id' from manifest;"
+	query := "SELECT id from manifest ORDER BY ctime DESC LIMIT 1;"
 	var id string
 	row, err := db.Query(query)
 	if err != nil {

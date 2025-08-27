@@ -70,16 +70,20 @@ type state struct {
 	D []string
 }
 
-func format_state(s *state) string {
+func format_state(s *state, P string) string {
 	var result string
+	if state_clean(s) && is_valid_hash(nil, P) {
+		return fmt.Sprintf("No changes detected for %s", P)
+	}
+	result = result + fmt.Sprintf("%s\n", P)
 	for _, u := range s.U {
-		result = result + fmt.Sprintf("U %s\n", u)
+		result = result + fmt.Sprintf(" U %s\n", u)
 	}
 	for _, u := range s.M {
-		result = result + fmt.Sprintf("M %s\n", u)
+		result = result + fmt.Sprintf(" M %s\n", u)
 	}
 	for _, u := range s.D {
-		result = result + fmt.Sprintf("D %s\n", u)
+		result = result + fmt.Sprintf(" D %s\n", u)
 	}
 	return result
 }

@@ -53,7 +53,7 @@ func put_checkin(db *sql.DB, C string, root string, ignore []string) (string, er
 }
 
 func get_previous_checkin(db *sql.DB) (string, error) {
-	query := "SELECT MAX(id) as 'id' from checkin;"
+	query := "SELECT id from checkin ORDER BY ctime DESC LIMIT 1;"
 	var id string
 	row, err := db.Query(query)
 	if err != nil {

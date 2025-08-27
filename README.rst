@@ -93,6 +93,7 @@ Reference Change (Delta)
  1 N    K (+|-) <tag-name> <tag-value>
  0 N    L <checkin id>
  1 1    P <predecessor ref-change id>                      
+ 1 1    U <user>
  1 1    Z <checksum>
 
 

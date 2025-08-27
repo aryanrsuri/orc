@@ -61,8 +61,6 @@ func is_valid_hash(db *sql.DB, data string) bool {
 		return false
 	}
 
-	// TODO: This is If I want to check the validity of a valid_hash
-	// in general... Should remove?
 	if db != nil {
 		query := "SELECT 1 FROM blob WHERE id = ?;"
 		rows, err := db.Query(query, data)
