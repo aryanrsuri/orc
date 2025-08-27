@@ -30,7 +30,7 @@ func put_ref(db *sql.DB, C string,  K map[string]pair, L []string, T string) (st
 		return "", err
 	}
 
-	return id, nil
+	return I, nil
 }
 
 func write_ref(C string, I string, K map[string]pair, L []string, T string) ([]byte, error) {
