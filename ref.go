@@ -8,6 +8,7 @@ import (
 
 // FIXME: One SQL thread, rollback on any errors
 func put_ref(db *sql.DB, C string,  K map[string]pair, L []string, T string) (string, error) {
+	fmt.Println(C, K, L, T)
 	I := uuid()
 	ref, err := write_ref(C, I, K, L, T)
 	if err != nil {

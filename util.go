@@ -74,8 +74,10 @@ func format_state(s *state, P string) string {
 	var result string
 	if state_clean(s) && is_valid_hash(nil, P) {
 		return fmt.Sprintf("No changes detected for %s", P)
+	} 
+	if is_valid_hash(nil, P) {
+		result = result + fmt.Sprintf(" P %s\n", P)
 	}
-	result = result + fmt.Sprintf("%s\n", P)
 	for _, u := range s.U {
 		result = result + fmt.Sprintf(" U %s\n", u)
 	}

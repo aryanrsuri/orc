@@ -176,7 +176,7 @@ func (m *multi_flag) Set(v string) error { *m = append(*m, v); return nil }
 func main() {
 	var c config
 	c.root = "."
-	c.ignore = []string{".git", ".orc", ".DS_Store", "orc", "examples"}
+	c.ignore = []string{".git", ".orc", ".DS_Store", "orc", "examples", "main.o"}
 	if len(os.Args) < 2 {
 		fmt.Println("Expected some command")
 		os.Exit(1)
@@ -226,7 +226,7 @@ func main() {
 		cmd.Var(&del_k, "kr","delete key=value")
 		cmd.Var(&links, "l","link checkin")
 
-		_ = cmd.Parse(os.Args[2:])
+		_ = cmd.Parse(os.Args[3:])
 		args := cmd.Args()
 		if len(args) < 1 {
 			fmt.Printf("expected subcommand\n")
@@ -254,7 +254,8 @@ func main() {
 			}
 		}
 
-		switch args[0] {
+		subcommand := os.Args[2]
+		switch subcommand {
 		default: 
 			fmt.Println("unkown subcommand")
 			os.Exit(1)
@@ -266,11 +267,12 @@ func main() {
 			}
 			fmt.Printf("ref %s created at %s\nref id: %s\n", *comment, time.Now().UTC().String(), id)
 		case "edit":
-			if len(args) < 2 {
+			args := cmd.Args()
+			if len(args) < 1 {
 				fmt.Println("no ref id provided")
 				os.Exit(1)
 			}
-			ref_id := args[1]
+			ref_id := args[0]
 			id, err := put_delta(db, ref_id, *comment, K, links)
 			if err != nil {
 				fmt.Println(err)
