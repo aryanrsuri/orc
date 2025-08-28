@@ -8,7 +8,6 @@ import (
 
 // FIXME: One SQL thread, rollback on any errors
 func put_ref(db *sql.DB, C string,  K map[string]pair, L []string, T string) (string, error) {
-	fmt.Println(C, K, L, T)
 	I := uuid()
 	ref, err := write_ref(C, I, K, L, T)
 	if err != nil {
@@ -140,5 +139,37 @@ func get_previous_delta(db *sql.DB, I string) (string, error) {
 	row.Scan(&P)
 	return P, nil
 }
+
+
+type ref struct {
+	id string
+	uid string
+	ctime int64
+	user string
+	comment string
+	rtype string
+}
+
+func get_refs(db *sql.DB) ([]ref, error) {
+	var refs []ref
+	query := "SELECT id, uid, ctime, user, comment, type as `rtype` FROM ref ORDER BY ctime DESC;"
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var r ref
+		if err := rows.Scan(&r.id, &r.uid, &r.ctime, &r.user, &r.comment, &r.rtype); err != nil {
+			return refs, err
+		}
+		refs = append(refs, r)
+	}
+	if err := rows.Err(); err != nil {
+		return refs, err
+
+	}
+	return refs, err
+}
+
 
 func get_ref_history() {}

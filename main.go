@@ -214,7 +214,13 @@ func main() {
 		now := time.Now().UTC().String()
 		fmt.Printf("Checkin `%s` created at %s\nCheckin ID: %s\n", *comment, now, id)
 	case "ref":
-		cmd := flag.NewFlagSet("ref", flag.ExitOnError)
+		if len(os.Args) < 3 {
+			fmt.Println("expected subcommand for 'ref'")
+			os.Exit(1)
+		}
+
+		subcommand := os.Args[2]
+		cmd := flag.NewFlagSet(subcommand, flag.ExitOnError)
 		comment := cmd.String("m", "", "ref comment")
 		ref_type := cmd.String("t", "ticket", "ref type")
 
@@ -222,19 +228,16 @@ func main() {
 		var del_k multi_flag
 		var links multi_flag
 
-		cmd.Var(&add_k, "k","add key=value")
-		cmd.Var(&del_k, "kr","delete key=value")
-		cmd.Var(&links, "l","link checkin")
+		cmd.Var(&add_k, "k", "add key=value")
+		cmd.Var(&del_k, "kr", "delete key=value")
+		cmd.Var(&links, "l", "link checkin")
 
-		_ = cmd.Parse(os.Args[3:])
-		args := cmd.Args()
-		fmt.Println(os.Args)
-		fmt.Println(args)
-		if len(args) < 1 {
-			fmt.Printf("expected subcommand\n")
+		err := cmd.Parse(os.Args[3:])
+		if err != nil {
+			fmt.Println(err)
 			os.Exit(1)
 		}
-
+		args := cmd.Args()
 
 		db, err := get_connection(DB)
 		if err != nil {
@@ -256,10 +259,9 @@ func main() {
 			}
 		}
 
-		subcommand := os.Args[2]
 		switch subcommand {
-		default: 
-			fmt.Println("unkown subcommand")
+		default:
+			fmt.Println("unknown subcommand")
 			os.Exit(1)
 		case "create":
 			id, err := put_ref(db, *comment, K, links, *ref_type)
@@ -269,7 +271,6 @@ func main() {
 			}
 			fmt.Printf("ref %s created at %s\nref id: %s\n", *comment, time.Now().UTC().String(), id)
 		case "edit":
-			args := cmd.Args()
 			if len(args) < 1 {
 				fmt.Println("no ref id provided")
 				os.Exit(1)
@@ -280,10 +281,17 @@ func main() {
 				fmt.Println(err)
 				os.Exit(1)
 			}
-			fmt.Println("ref %s updated at %s\ndelta id: %s\n", ref_id, time.Now().UTC().String(), id)
+			fmt.Printf("ref %s updated at %s\ndelta id: %s\n", ref_id, time.Now().UTC().String(), id)
+		case "log":
+			refs, err := get_refs(db)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(0)
+			}
+			for _, ref := range refs {
+				fmt.Printf("ID: %s [%s] (%s) `%s` by %s on %s\n", ref.uid, ref.id[:12], ref.rtype, ref.comment, ref.user, time.Unix(ref.ctime, 0).UTC().String())
+			}
 		}
-
-
 
 	case "status":
 		cmd := flag.NewFlagSet("status", flag.ExitOnError)
