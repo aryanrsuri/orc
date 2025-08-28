@@ -228,6 +228,8 @@ func main() {
 
 		_ = cmd.Parse(os.Args[3:])
 		args := cmd.Args()
+		fmt.Println(os.Args)
+		fmt.Println(args)
 		if len(args) < 1 {
 			fmt.Printf("expected subcommand\n")
 			os.Exit(1)
